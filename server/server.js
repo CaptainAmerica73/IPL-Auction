@@ -20,7 +20,7 @@ app.use("/players", playerRouter);
 
 mongoose
   .connect(
-    "mongodb+srv://vijayasankar:anandevs@cluster0.h00ab.mongodb.net/ipl-auction?retryWrites=true&w=majority&appName=Cluster0"
+    process.env.MONGO_URI
   )
   .then(() => console.log("MongoDB Connected"))
   .catch((e) => console.log("MongoDB Connection Error"));
