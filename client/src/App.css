@@ -1,0 +1,18 @@
+.home-bg-pattern {
+  background-image: url("images/bg.webp");
+  background-size: 100vw 100vh;
+  background-repeat: no-repeat;
+}
+
+.home-bg-logo {
+  background-image: url("images/bg_home_logo.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: max(100vw, 50rem);
+}
+
+@media (width <= 900px) {
+  .nav {
+    display: none;
+  }
+}
