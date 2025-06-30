@@ -1,9 +1,11 @@
-// import axios from "axios";
 import { useEffect, useState } from "react";
-// import { socket } from "../socket";
+import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function Home() {
   const [scroll, setScroll] = useState(0);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -12,10 +14,17 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (location.state?.message) {
+      toast.success(location.state.message);
+      navigate("/", { replace: true });
+    }
+  }, [location.state?.message, navigate]);
+
   return (
     <>
       <div className="min-h-[100vh] w-[100vw] flex flex-col">
-        <div className="relative flex justify-center items-center bg-[url(images/bg_stadium.jpg)] bg-cover bg-center h-[100vh] overflow-hidden">
+        <div className="relative flex justify-center items-center bg-[url(/images/bg_stadium.jpg)] bg-cover bg-center h-[100vh] overflow-hidden">
           <div className="absolute inset-0 bg-[#19398aa2]"></div>
           <div
             className="home-bg-logo absolute top-0 left-0 h-full w-full "

@@ -5,13 +5,9 @@ const router = express.Router();
 
 router.get("", async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
     const totalBids = await Bid.countDocuments();
-    const bids = await Bid.find()
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * 10)
-      .limit(10);
-    res.json({ bids, totalPages: Math.ceil(totalBids / 10) });
+    const bids = await Bid.find().sort({ createdAt: -1 });
+    res.json({ bids, totalBids });
   } catch (e) {
     res.json({ error: e.message });
   }

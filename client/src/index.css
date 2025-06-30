@@ -10,6 +10,19 @@
   width: 0;
 }
 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+input:user-invalid {
+  border-color: red;
+}
+
+input:user-invalid + label {
+  color: red;
+}
+
 *,
 *::after,
 *::before {

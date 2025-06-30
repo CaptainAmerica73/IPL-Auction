@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Auction, Auctions } from "../interfaces/auctions";
-import axios from "axios";
+import { axiosInstance } from "../services/axiosInstance";
 
 export const fetchAuctions = createAsyncThunk("auctions", async () => {
-  const res = await axios.get("http://localhost:3000/auctions");
+  const res = await axiosInstance.get("http://localhost:3000/auctions");
   return res.data;
 });
 
@@ -17,7 +17,12 @@ const initialState: Auctions = {
 const auctionSlice = createSlice({
   name: "auction",
   initialState,
-  reducers: {},
+  reducers: {
+    addAuction: (state, action: PayloadAction<Auction>) => {
+      state.auctions.unshift(action.payload);
+      state.totalAuctions += 1;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(fetchAuctions.pending, (state) => {
       state.isLoading = true;
@@ -27,6 +32,7 @@ const auctionSlice = createSlice({
       fetchAuctions.fulfilled,
       (state, action: PayloadAction<Auction[]>) => {
         state.isLoading = false;
+        state.error = null;
         state.auctions = action.payload;
         state.totalAuctions = action.payload.length;
       }
@@ -37,5 +43,7 @@ const auctionSlice = createSlice({
     });
   },
 });
+
+export const { addAuction } = auctionSlice.actions;
 
 export default auctionSlice.reducer;

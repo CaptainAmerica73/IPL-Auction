@@ -6,7 +6,6 @@ const playerSchema = new mongoose.Schema({
   nationality: { type: String, required: true },
   specialization: { type: String, required: true },
   dob: { type: Date },
-  squad: String,
   debut: String,
   stats: {
     "Batting & Fielding": [
@@ -21,6 +20,10 @@ const playerSchema = new mongoose.Schema({
         of: String,
       },
     ],
+  },
+  highestBid: {
+    amount: { type: Number },
+    biddedBy: { type: String },
   },
 });
 

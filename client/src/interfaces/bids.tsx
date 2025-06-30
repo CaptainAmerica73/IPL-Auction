@@ -1,5 +1,5 @@
 export interface Bid {
-  playerId: string;
+  auctionId: string;
   playerName: string;
   amount: number;
   biddedBy: string;
@@ -7,9 +7,9 @@ export interface Bid {
 
 export interface Bids {
   bids: Bid[];
+  totalBids: number;
   totalPages: number;
   currentPage: number;
-  status: "idle" | "active";
   isLoading: boolean;
   error: string | null;
 }

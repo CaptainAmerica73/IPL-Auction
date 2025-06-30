@@ -1,18 +1,18 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { Bids, Bid } from "../interfaces/bids";
-import axios from "axios";
-import { socket } from "../socket";
+import { axiosInstance } from "../services/axiosInstance";
+import { clientSocket } from "../socket";
 
-export const fetchBids = createAsyncThunk("bids", async (page: number = 1) => {
-  const res = await axios.get(`http://localhost:3000/bids?page=${page}`);
-  return { data: res.data, page: page };
+export const fetchBids = createAsyncThunk("bids", async () => {
+  const res = await axiosInstance.get(`http://localhost:3000/bids`);
+  return { data: res.data };
 });
 
 const initialState: Bids = {
   bids: [],
   totalPages: 1,
   currentPage: 1,
-  status: "idle",
+  totalBids: 0,
   isLoading: false,
   error: null,
 };
@@ -24,7 +24,7 @@ const bidSlice = createSlice({
     addBid: (state, action: PayloadAction<Bid>) => {
       state.bids.unshift(action.payload);
       state.totalPages = Math.ceil(state.bids.length / 10);
-      socket.emit("newBid", action.payload);
+      clientSocket.emit("newBid", action.payload);
     },
   },
   extraReducers: (builder) => {
@@ -37,18 +37,14 @@ const bidSlice = createSlice({
       (
         state,
         action: PayloadAction<{
-          data: { bids: Bid[]; totalPages: number };
-          page: number;
+          data: { bids: Bid[]; totalBids: number };
         }>
       ) => {
         state.isLoading = false;
-        state.totalPages = action.payload.data.totalPages;
-        state.currentPage = action.payload.page;
-        if (action.payload.page === 1) {
-          state.bids = action.payload.data.bids;
-        } else {
-          state.bids = [...state.bids, ...action.payload.data.bids];
-        }
+        state.totalBids = action.payload.data.totalBids;
+        state.totalPages = Math.ceil(action.payload.data.totalBids / 10);
+        state.currentPage = 1;
+        state.bids = action.payload.data.bids;
       }
     );
     builder.addCase(fetchBids.rejected, (state, action) => {

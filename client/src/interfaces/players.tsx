@@ -17,6 +17,7 @@ export interface Stats {
 
 export interface Players {
   players: Player[];
+  totalPlayers: number;
   totalPages: number;
   currentPage: number;
   isLoading: boolean;
