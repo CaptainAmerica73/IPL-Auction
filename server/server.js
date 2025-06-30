@@ -25,7 +25,13 @@ app.use("/auctions", auctionRouter);
 app.use("/auth", authRouter);
 
 mongoose
+<<<<<<< HEAD
   .connect(process.env.MONGO_URI)
+=======
+  .connect(
+    process.env.MONGO_URI
+  )
+>>>>>>> 433261d2f354e17b39866c7fde569f6828820008
   .then(() => console.log("MongoDB Connected"))
   .catch((e) => console.log("MongoDB Connection Error"));
 
