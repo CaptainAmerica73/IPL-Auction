@@ -1,10 +1,16 @@
-import { User } from "./users";
+import { Player } from "./players";
+import { Team } from "./teams";
 
 export interface Auction {
   id: string;
-  users: User[];
+  auctionName: string;
+  teams: Team[];
+  players: Player[];
   totalTeams: number;
+  wallet: string;
+  privacy: "private" | "public";
   status: "idle" | "active" | "ended";
+  createdBy: string;
 }
 
 export interface Auctions {
