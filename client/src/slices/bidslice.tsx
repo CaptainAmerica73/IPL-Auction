@@ -24,8 +24,7 @@ const bidSlice = createSlice({
     addBid: (state, action: PayloadAction<Bid>) => {
       state.bids.unshift(action.payload);
       state.totalPages = Math.ceil(state.bids.length / 10);
-      const socket = getSocket();
-      socket.emit("newBid", action.payload);
+      getSocket().emit("newBid", action.payload);
     },
   },
   extraReducers: (builder) => {

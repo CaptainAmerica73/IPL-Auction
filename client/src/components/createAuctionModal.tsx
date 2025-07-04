@@ -2,6 +2,11 @@ import { FormEvent, useState } from "react";
 import { Auction, PrivateAuction, PublicAuction } from "../interfaces/auctions";
 import getSocket from "../services/getSocket";
 import { toCrore } from "../utilities/croreConversion";
+import { toast } from "react-toastify";
+import { createAuction } from "../services/createAuction";
+import { useDispatch } from "react-redux";
+import { DispatchType } from "../store/store";
+import { addAuction } from "../slices/auctionslice";
 
 export default function CreateAuctionModal({
   setToggle,
@@ -16,6 +21,7 @@ export default function CreateAuctionModal({
     wallet: "0Cr",
     privacy: "public",
   });
+  const dispatch = useDispatch<DispatchType>();
 
   const handleChange = (o: Partial<Auction>) => {
     setAuction((prev) => ({ ...prev, ...o }));
@@ -23,10 +29,27 @@ export default function CreateAuctionModal({
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const socket = getSocket();
-    console.log("Creating auction with data:", auction);
-    socket.emit("createAuction", auction);
-    setToggle(false);
+    try {
+      createAuction(auction)
+        .then((response) => {
+          if (response.error) {
+            toast.error(response.error);
+            throw new Error(response.error);
+          }
+          toast.success(response.message || "Auction created successfully!");
+          dispatch(addAuction(response.auctionData));
+          getSocket().emit("auctionCreated", response.auctionData);
+        })
+        .catch((error) => {
+          toast.error(
+            error.message || "Failed to create auction. Please try again."
+          );
+        });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setToggle(false);
+    }
   };
 
   return (
@@ -135,7 +158,7 @@ export default function CreateAuctionModal({
                 htmlFor="password"
                 className="absolute -top-1 left-0 text-sm -translate-y-1/2 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-lg"
               >
-                Label
+                Password
               </label>
             </div>
           )}

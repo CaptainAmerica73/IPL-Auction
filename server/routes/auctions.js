@@ -2,6 +2,8 @@ import express from "express";
 import { Auction } from "../models/auctions.js";
 import { joinAuction } from "../controllers/joinAuction.js";
 import { authProtect } from "../middleware/authProtect.js";
+import { authRoles } from "../middleware/authRoles.js";
+import { createAuction } from "../controllers/createAuction.js";
 const router = express.Router();
 
 router.get("/", async (req, res) => {
@@ -13,6 +15,13 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/joinAuction", authProtect, joinAuction);
+router.post(
+  "/joinAuction",
+  authProtect,
+  authRoles("admin", "user"),
+  joinAuction
+);
+
+router.post("/createAuction", authProtect, authRoles("admin"), createAuction);
 
 export default router;
