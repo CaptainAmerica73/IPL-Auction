@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import useSocket from "../context/useSocket";
 import { useDispatch } from "react-redux";
 import { DispatchType } from "../store/store";
 import { addAuction } from "../slices/auctionslice";
 import { PrivateAuction, PublicAuction } from "../interfaces/auctions";
+import getSocket from "./getSocket";
 
 export default function AuctionListeners() {
-  const socket = useSocket();
+  const socket = getSocket();
   const dispatch = useDispatch<DispatchType>();
 
   useEffect(() => {
