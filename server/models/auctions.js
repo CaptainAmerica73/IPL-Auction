@@ -14,6 +14,17 @@ const auctionSchema = mongoose.Schema(
       min: 3,
       max: 10,
     },
+    currentTeams: {
+      type: Number,
+      default: 0,
+      min: 0,
+      validate: {
+        validator: function (v) {
+          return v <= this.totalTeams;
+        },
+        message: "Auction is full, cannot add more teams",
+      },
+    },
     teams: [
       {
         owner: {
@@ -49,7 +60,7 @@ const auctionSchema = mongoose.Schema(
     ],
     players: [
       {
-        player: {
+        playerId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Player",
           required: true,
@@ -74,8 +85,14 @@ const auctionSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      required: () => {
-        return this.privacy === "private";
+      validate: {
+        validator: function (value) {
+          if (this.privacy === "private") {
+            return typeof value === "string" && value.trim().length > 0;
+          }
+          return true;
+        },
+        message: "Password is required for private auctions",
       },
       select: false,
     },

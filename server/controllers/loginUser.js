@@ -8,8 +8,9 @@ export const loginUser = async (req, res) => {
     if (!userExists || !userExists.comparePassword(password)) {
       return res.status(404).json({ message: "Invalid Credentials" });
     }
+
     const data = {
-      id: userExists._id,
+      _id: userExists._id,
       userName: userExists.userName,
       role: userExists.role,
     };
@@ -20,14 +21,14 @@ export const loginUser = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       sameSite: "none",
       maxAge: 3 * 24 * 60 * 60 * 1000,
     });
 
     return res.status(200).json({
       message: "Login successful",
-      user: data,
+      user: { ...data, auctions: userExists.auctions },
     });
   } catch (error) {
     return res.status(500).json({ message: "Error while Logging in" });

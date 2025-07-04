@@ -3,19 +3,21 @@ import { User } from "../models/users.js";
 
 export const authProtect = async (req, res, next) => {
   const token = req.cookies.token;
+
   if (!token) {
     return res.status(401).json({ message: "Unauthorized access" });
   }
   try {
     const decoded = verifyToken(token);
-    const userExists = await User.findById(decoded.id)
+
+    const userExists = await User.findById(decoded._id)
       .select("-password")
       .lean();
     if (!userExists) {
       return res.status(401).json({ message: "Unauthorized access" });
     }
     req.user = {
-      id: userExists._id,
+      _id: userExists._id,
       userName: userExists.userName,
       role: userExists.role,
     };

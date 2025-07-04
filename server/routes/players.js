@@ -7,13 +7,9 @@ router.get("", async (req, res) => {
   try {
     const totalPlayers = await Player.countDocuments();
     const data = await Player.find().lean();
-    const players = data.map(({ _id, ...rest }) => ({
-      id: _id,
-      ...rest,
-    }));
-    res.json({ players, totalPlayers });
+    res.status(200).json({ players: data, totalPlayers });
   } catch (err) {
-    res.json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 

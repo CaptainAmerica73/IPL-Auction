@@ -1,8 +1,6 @@
 import { FormEvent, useState } from "react";
-import { Auction } from "../interfaces/auctions";
-import { clientSocket } from "../socket";
-import { useSelector } from "react-redux";
-import { RootState } from "../store/store";
+import { Auction, PrivateAuction, PublicAuction } from "../interfaces/auctions";
+import getSocket from "../services/getSocket";
 import { toCrore } from "../utilities/croreConversion";
 
 export default function CreateAuctionModal({
@@ -10,17 +8,13 @@ export default function CreateAuctionModal({
 }: {
   setToggle: (prev: boolean) => void;
 }) {
-  const currentUser = useSelector((state: RootState) => state.auth.id);
-  const [auction, setAuction] = useState<Auction>({
-    id: "",
+  const [auction, setAuction] = useState<
+    Partial<PrivateAuction | PublicAuction>
+  >({
     auctionName: "",
-    teams: [],
-    players: [],
     totalTeams: 0,
     wallet: "0Cr",
-    privacy: "private",
-    status: "idle",
-    createdBy: currentUser,
+    privacy: "public",
   });
 
   const handleChange = (o: Partial<Auction>) => {
@@ -29,7 +23,9 @@ export default function CreateAuctionModal({
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    clientSocket.emit("createAuction", auction);
+    const socket = getSocket();
+    console.log("Creating auction with data:", auction);
+    socket.emit("createAuction", auction);
     setToggle(false);
   };
 
@@ -107,7 +103,6 @@ export default function CreateAuctionModal({
                 }, 0);
               }}
               value={auction.wallet == "0Cr" ? "" : auction.wallet}
-              min={50}
               required
               placeholder=""
             />
@@ -118,13 +113,45 @@ export default function CreateAuctionModal({
               Wallet
             </label>
           </div>
+          {auction.privacy == "private" && (
+            <div className="relative h-[5vh] w-full my-[.5rem]">
+              <input
+                name="password"
+                id="password"
+                className="peer border-b-2 border-white bg-transparent outline-none h-full w-full"
+                type="password"
+                onChange={(e) =>
+                  setAuction((prev) => ({
+                    ...prev,
+                    password: e.target.value,
+                  }))
+                }
+                value={auction.password}
+                minLength={6}
+                required={auction.privacy == "private"}
+                placeholder=""
+              />
+              <label
+                htmlFor="password"
+                className="absolute -top-1 left-0 text-sm -translate-y-1/2 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-lg"
+              >
+                Label
+              </label>
+            </div>
+          )}
           <div className="flex justify-around">
             <div className="flex gap-[.5rem]">
               <input
                 type="radio"
                 id="public"
                 name="privacy"
-                onChange={() => handleChange({ privacy: "public" })}
+                onChange={() => {
+                  const data = auction as Omit<PrivateAuction, "password">;
+                  setAuction({
+                    ...data,
+                    privacy: "public",
+                  } as PublicAuction);
+                }}
                 checked={auction.privacy == "public"}
                 className="scale-125 accent-[#19398a]"
               />
@@ -137,7 +164,16 @@ export default function CreateAuctionModal({
                 type="radio"
                 id="private"
                 name="privacy"
-                onChange={() => handleChange({ privacy: "private" })}
+                onChange={() => {
+                  setAuction(
+                    (prev) =>
+                      ({
+                        ...prev,
+                        privacy: "private",
+                        password: "",
+                      } as PrivateAuction)
+                  );
+                }}
                 checked={auction.privacy == "private"}
                 className="scale-125 accent-[#19398a]"
               />
@@ -150,9 +186,10 @@ export default function CreateAuctionModal({
             className="bg-cyan-700 rounded-xl text-[clamp(0.8rem,1.3vw,1.3rem)] py-[clamp(.5rem,.5vw,.8rem)] px-[clamp(1rem,1.7vw,2.2rem)] hover:not-disabled:text-black hover:not-disabled:bg-cyan-600 transition-all mx-auto mb-[3rem] disabled:cursor-not-allowed disabled:brightness-50 cursor-pointer"
             type="submit"
             disabled={
-              auction.totalTeams < 4 ||
-              auction.auctionName.length < 6 ||
-              parseInt(auction.wallet.slice(0, auction.wallet.length - 2)) < 50
+              auction.totalTeams! < 4 ||
+              auction.auctionName!.length < 6 ||
+              parseInt(auction.wallet!.slice(0, auction.wallet!.length - 2)) <
+                50
             }
           >
             Submit

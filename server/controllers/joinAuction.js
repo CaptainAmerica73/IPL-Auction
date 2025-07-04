@@ -1,8 +1,9 @@
 import { Auction } from "../models/auctions.js";
+import { User } from "../models/users.js";
 
 export const joinAuction = async (req, res) => {
   const { teamName, imageURL, auctionId, password } = req.body;
-  const userId = req.user.id;
+  const userId = req.user._id;
   try {
     if (!auctionId) {
       return res.status(400).json({ message: "Auction ID is required" });
@@ -58,18 +59,31 @@ export const joinAuction = async (req, res) => {
       }
     }
 
+    const user = await User.findById(userId);
+    user.auctions.push(auctionId);
+    await user.save();
+
     auction.teams.push({
       owner: userId,
       imageURL: imageURL,
       teamName: teamName,
+      wallet: auction.wallet,
     });
     await auction.save();
 
     return res.status(200).json({
       message: "Successfully joined the auction",
       auctionId: auction._id,
+      teamData: {
+        owner: userId,
+        imageURL: imageURL,
+        teamName: teamName,
+        wallet: auction.wallet,
+      },
     });
   } catch (error) {
+    console.log(error.message);
+
     return res.status(500).json({ message: "Internal server error" });
   }
 };

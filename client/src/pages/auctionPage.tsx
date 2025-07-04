@@ -2,8 +2,8 @@ import { useDispatch } from "react-redux";
 import { DispatchType } from "../store/store";
 import { useEffect, useState } from "react";
 import CreateAuctionModal from "../components/createAuctionModal";
-import { Auction } from "../interfaces/auctions";
-import { clientSocket } from "../socket";
+import { PrivateAuction, PublicAuction } from "../interfaces/auctions";
+import getSocket from "../services/getSocket";
 import { addAuction } from "../slices/auctionslice";
 import AuctionList from "../components/auctionList";
 
@@ -12,15 +12,17 @@ export default function AuctionHome() {
     useState(false);
   const dispatch = useDispatch<DispatchType>();
 
+  const socket = getSocket();
+
   useEffect(() => {
-    const handleNewAuction = (auction: Auction) => {
+    const handleNewAuction = (auction: PublicAuction | PrivateAuction) => {
       dispatch(addAuction(auction));
     };
-    clientSocket.on("auctionCreated", handleNewAuction);
+    socket.on("auctionCreated", handleNewAuction);
     return () => {
-      clientSocket.off("auctionCreated", handleNewAuction);
+      socket.off("auctionCreated", handleNewAuction);
     };
-  }, [dispatch]);
+  }, [dispatch, socket]);
 
   return (
     <div className="w-screen min-h-screen flex justify-center bg-[#19398a]">

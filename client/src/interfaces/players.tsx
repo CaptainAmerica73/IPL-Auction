@@ -1,5 +1,5 @@
 export interface Player {
-  id: string;
+  _id: string;
   image: string;
   name: string;
   specialization: string;

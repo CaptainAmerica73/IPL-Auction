@@ -2,34 +2,27 @@ import axios from "axios";
 import { axiosInstance } from "./axiosInstance";
 
 export const joinAuction = async ({
+  auctionId,
   teamName,
   imageURL,
-  auctionId,
-  auctionPrivacy,
   password,
+  auctionPrivacy,
 }: {
+  auctionId: string;
   teamName: string;
   imageURL: string;
-  auctionId: string;
-  auctionPrivacy: "private" | "public";
   password?: string;
+  auctionPrivacy: "private" | "public";
 }) => {
+  console.log("Joining auction with data:", auctionId);
+
   try {
-    const response = await axiosInstance.post(
-      "/auctions/joinAuction",
-      {
-        teamName,
-        imageURL,
-        auctionId,
-        ...(auctionPrivacy === "private" ? { password } : {}),
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          withCredentials: true,
-        },
-      }
-    );
+    const response = await axiosInstance.post("/auctions/joinAuction", {
+      teamName,
+      imageURL,
+      auctionId,
+      ...(auctionPrivacy === "private" ? { password } : {}),
+    });
     if (response.status !== 200) {
       throw new Error("Failed to join auction");
     }

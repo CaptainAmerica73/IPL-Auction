@@ -6,38 +6,35 @@ const savedUser = sessionStorage.getItem("user") || "";
 const initialState: User = savedUser
   ? JSON.parse(savedUser)
   : {
-      id: "",
+      _id: "",
       role: "user",
       isAuthenticated: false,
       userName: "",
       teamName: "",
-      auctions: [],
-      wallet: "0Cr",
     };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setUser: (state: User, action: PayloadAction<User>) => {
-      const { id, userName, role, teamName, auctions, wallet } = action.payload;
-      state.id = id;
+    setUser: (
+      state: User,
+      action: PayloadAction<Omit<User, "isAuthenticated" | "teamName">>
+    ) => {
+      const { _id, userName, role, auctions } = action.payload;
+      state._id = _id;
       state.userName = userName;
       state.role = role;
-      state.teamName = teamName || "";
-      state.auctions = auctions || [];
-      state.wallet = wallet || "0Cr";
       state.isAuthenticated = true;
+      state.auctions = auctions || [];
 
       sessionStorage.setItem("user", JSON.stringify(state));
     },
     logout: (state: User) => {
-      state.id = "";
+      state._id = "";
       state.userName = "";
       state.role = "user";
       state.teamName = "";
-      state.auctions = [];
-      state.wallet = "0Cr";
       state.isAuthenticated = false;
       sessionStorage.removeItem("user");
     },

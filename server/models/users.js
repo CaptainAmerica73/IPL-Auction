@@ -10,6 +10,7 @@ const UserSchema = new mongoose.Schema({
     enum: ["user", "admin"],
     default: "user",
   },
+  auctions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Auction" }],
 });
 
 UserSchema.pre("save", function (next) {

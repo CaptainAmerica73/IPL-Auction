@@ -1,11 +1,10 @@
 export interface User {
-  id: string;
+  _id: string;
   userName: string;
   role: "user" | "admin";
   isAuthenticated: boolean;
-  teamName: string;
   auctions: string[];
-  wallet: string;
+  teamName: string;
 }
 
 export interface Users {

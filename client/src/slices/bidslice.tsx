@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { Bids, Bid } from "../interfaces/bids";
 import { axiosInstance } from "../services/axiosInstance";
-import { clientSocket } from "../socket";
+import getSocket from "../services/getSocket";
 
 export const fetchBids = createAsyncThunk("bids", async () => {
   const res = await axiosInstance.get(`http://localhost:3000/bids`);
@@ -24,7 +24,8 @@ const bidSlice = createSlice({
     addBid: (state, action: PayloadAction<Bid>) => {
       state.bids.unshift(action.payload);
       state.totalPages = Math.ceil(state.bids.length / 10);
-      clientSocket.emit("newBid", action.payload);
+      const socket = getSocket();
+      socket.emit("newBid", action.payload);
     },
   },
   extraReducers: (builder) => {

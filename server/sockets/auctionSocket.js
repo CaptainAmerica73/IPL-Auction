@@ -1,14 +1,22 @@
 import { Auction } from "../models/auctions.js";
+import { Player } from "../models/players.js";
 
 export const auctionSocket = (io, socket) => {
   socket.on("createAuction", async (auctionData) => {
-    const { id, ...rest } = auctionData;
-
     try {
-      const newAuction = new Auction(rest);
+      const players = await Player.find({}, { _id: 1 }).lean();
+      const newAuction = new Auction({
+        ...auctionData,
+        players: players.map((player) => ({
+          playerId: player._id,
+        })),
+        createdBy: socket.user._id,
+      });
       await newAuction.save();
-      const { _id, ...newRest } = newAuction.toObject();
-      io.emit("auctionCreated", { id: _id, ...newRest });
+      const data = newAuction.toObject();
+      console.log(data._id);
+
+      io.emit("auctionCreated", data);
     } catch (error) {
       io.emit("auctionCreationError", "Failed to create auction");
     }

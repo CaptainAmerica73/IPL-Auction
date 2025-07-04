@@ -1,6 +1,9 @@
 import { ChangeEvent, FormEvent, useState } from "react";
+import { addTeamToAuction } from "../slices/auctionslice";
 import { joinAuction } from "../services/joinAuction";
 import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { DispatchType, RootState } from "../store/store";
 
 export default function JoinAuctionModal({
   auctionId,
@@ -11,6 +14,8 @@ export default function JoinAuctionModal({
   auctionPrivacy: "private" | "public";
   closeModal: () => void;
 }) {
+  const currentUser = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch<DispatchType>();
   const [formData, setFormData] = useState({
     teamName: "",
     imageURL: "",
@@ -24,12 +29,21 @@ export default function JoinAuctionModal({
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    joinAuction({ ...formData, auctionPrivacy, auctionId })
+    joinAuction({ auctionId, ...formData, auctionPrivacy })
       .then((response) => {
         if (response.error) {
           toast.error(response.error);
         } else {
           toast.success("Successfully joined the auction!");
+          dispatch(
+            addTeamToAuction({
+              auctionId,
+              owner: currentUser.userName,
+              teamName: response.teamData.teamName,
+              imageURL: response.teamData.imageURL,
+              wallet: response.teamData.wallet,
+            })
+          );
         }
         closeModal();
       })

@@ -2,19 +2,28 @@ import { Player } from "./players";
 import { Team } from "./teams";
 
 export interface Auction {
-  id: string;
+  _id: string;
   auctionName: string;
   teams: Team[];
   players: Player[];
+  currentTeams: number;
   totalTeams: number;
   wallet: string;
-  privacy: "private" | "public";
   status: "idle" | "active" | "ended";
   createdBy: string;
 }
 
+export interface PrivateAuction extends Auction {
+  privacy: "private";
+  password: string;
+}
+
+export interface PublicAuction extends Auction {
+  privacy: "public";
+}
+
 export interface Auctions {
-  auctions: Auction[];
+  auctions: (PublicAuction | PrivateAuction)[];
   totalAuctions: number;
   isLoading: boolean;
   error: string | null;

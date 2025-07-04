@@ -47,7 +47,7 @@ export default function Login() {
         dispatch(setUser(data.user));
         navigate("/", {
           state: {
-            message: "Login successful!",
+            message: data.message || "Login successful!",
           },
         });
       }

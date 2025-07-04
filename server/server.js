@@ -8,30 +8,31 @@ import playerRouter from "./routes/players.js";
 import auctionRouter from "./routes/auctions.js";
 import authRouter from "./routes/auth.js";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 import { bidSocket } from "./sockets/bidSocket.js";
 import { auctionSocket } from "./sockets/auctionSocket.js";
 import { playerSocket } from "./sockets/playerSocket.js";
+import { socketMiddleware } from "./middleware/socketMiddleware.js";
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "http://localhost:5173" } });
+const io = new Server(server, {
+  cors: { origin: "http://localhost:5173", credentials: true },
+});
 dotenv.config();
 
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
+app.use(cookieParser());
 app.use("/bids", bidRouter);
 app.use("/players", playerRouter);
 app.use("/auctions", auctionRouter);
 app.use("/auth", authRouter);
 
+io.use(socketMiddleware);
+
 mongoose
-<<<<<<< HEAD
   .connect(process.env.MONGO_URI)
-=======
-  .connect(
-    process.env.MONGO_URI
-  )
->>>>>>> 433261d2f354e17b39866c7fde569f6828820008
   .then(() => console.log("MongoDB Connected"))
   .catch((e) => console.log("MongoDB Connection Error"));
 
@@ -40,7 +41,7 @@ server.listen(process.env.PORT, () =>
 );
 
 io.on("connection", (socket) => {
-  console.log(`${socket.id} connected`);
+  console.log(`${socket.user.userName} connected`);
 
   bidSocket(io, socket);
   playerSocket(io, socket);
