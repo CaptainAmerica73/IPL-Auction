@@ -37,8 +37,8 @@ export default function CreateAuctionModal({
             throw new Error(response.error);
           }
           toast.success(response.message || "Auction created successfully!");
-          dispatch(addAuction(response.auctionData));
-          getSocket().emit("auctionCreated", response.auctionData);
+          dispatch(addAuction(response.data));
+          getSocket().emit("auctionCreated", response.data);
         })
         .catch((error) => {
           toast.error(

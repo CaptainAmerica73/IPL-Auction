@@ -14,8 +14,6 @@ export const joinAuction = async ({
   password?: string;
   auctionPrivacy: "private" | "public";
 }) => {
-  console.log("Joining auction with data:", auctionId);
-
   try {
     const response = await axiosInstance.post("/auctions/joinAuction", {
       teamName,

@@ -5,6 +5,7 @@ export interface Team {
   owner: string;
   imageURL: string;
   wallet: string;
+  active: boolean;
   players: Pick<
     Player,
     "_id" | "name" | "image" | "specialization" | "nationality"

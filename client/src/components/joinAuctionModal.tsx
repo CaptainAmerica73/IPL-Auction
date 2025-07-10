@@ -2,8 +2,9 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { addTeamToAuction } from "../slices/auctionslice";
 import { joinAuction } from "../services/joinAuction";
 import { toast } from "react-toastify";
-import { useDispatch, useSelector } from "react-redux";
-import { DispatchType, RootState } from "../store/store";
+import { useDispatch } from "react-redux";
+import { DispatchType } from "../store/store";
+import getSocket from "../services/getSocket.ts";
 
 export default function JoinAuctionModal({
   auctionId,
@@ -14,7 +15,6 @@ export default function JoinAuctionModal({
   auctionPrivacy: "private" | "public";
   closeModal: () => void;
 }) {
-  const currentUser = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch<DispatchType>();
   const [formData, setFormData] = useState({
     teamName: "",
@@ -32,24 +32,27 @@ export default function JoinAuctionModal({
     joinAuction({ auctionId, ...formData, auctionPrivacy })
       .then((response) => {
         if (response.error) {
-          toast.error(response.error);
+          throw new Error(response.error);
         } else {
           toast.success("Successfully joined the auction!");
+          const data = {
+            auctionId,
+            owner: response.teamData.owner,
+            teamName: response.teamData.teamName,
+            imageURL: response.teamData.imageURL,
+            wallet: response.teamData.wallet,
+          }
           dispatch(
-            addTeamToAuction({
-              auctionId,
-              owner: currentUser.userName,
-              teamName: response.teamData.teamName,
-              imageURL: response.teamData.imageURL,
-              wallet: response.teamData.wallet,
-            })
+              addTeamToAuction(data)
           );
+          getSocket().emit("joinedAuction", data)
         }
-        closeModal();
       })
       .catch((error) => {
         toast.error(error.message);
-      });
+      }).finally(() => {
+      closeModal();
+    });
   };
 
   return (

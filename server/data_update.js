@@ -1,15 +1,17 @@
 import { readFileSync } from "fs";
 import mongoose from "mongoose";
 import { Player } from "./models/players.js";
+import dotenv from "dotenv";
 
+dotenv.config();
 const data = JSON.parse(readFileSync("../ipl_players.json", "utf-8"));
 
 mongoose
   .connect(
-    "mongodb+srv://vijayasankar:anandevs@cluster0.h00ab.mongodb.net/ipl-auction?retryWrites=true&w=majority&appName=Cluster0"
+    process.env.MONGO_URI
   )
   .then(() => console.log("MongoDB Connected"))
-  .catch((e) => console.log("MongoDB Connection Error"));
+  .catch((e) => console.log(e.message | "MongoDB Connection Error"));
 
 const update = async () => {
   data.forEach((player) => {
@@ -19,4 +21,6 @@ const update = async () => {
   });
 };
 
-update();
+update()
+  .then(() => console.log("Data updated successfully"))
+  .catch((e) => console.log(e.message | "Error updating players data"));

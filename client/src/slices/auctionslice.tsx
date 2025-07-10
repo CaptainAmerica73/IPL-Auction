@@ -8,8 +8,13 @@ import { axiosInstance } from "../services/axiosInstance";
 import { Team } from "../interfaces/teams";
 
 export const fetchAuctions = createAsyncThunk("auctions", async () => {
-  const res = await axiosInstance.get("http://localhost:3000/auctions");
-  return res.data;
+  try{
+    const res = await axiosInstance.get("http://localhost:3000/auctions");
+    return res.data;
+  }
+  catch (e) {
+    console.log(e instanceof Error ? e.message : "Unknown error");
+  }
 });
 
 const initialState: Auctions = {
@@ -49,10 +54,29 @@ const auctionSlice = createSlice({
           owner,
           imageURL,
           wallet,
+          active: false,
           players: [],
         };
         auction.teams.push(newTeam);
         auction.currentTeams += 1;
+      }
+    },
+    enteredAuction: (
+      state,
+      action: PayloadAction<{
+        auctionId: string;
+        teamName: string;
+        active: boolean;
+      }>
+    ) => {
+      const { auctionId, teamName, active } = action.payload;
+      const auction = state.auctions.find(
+        (auction) => auction._id === auctionId
+      );
+
+      if (auction) {
+        const team = auction.teams.find((team) => team.teamName === teamName);
+        if (team) team.active = active;
       }
     },
   },
@@ -77,6 +101,7 @@ const auctionSlice = createSlice({
   },
 });
 
-export const { addAuction, addTeamToAuction } = auctionSlice.actions;
+export const { addAuction, addTeamToAuction, enteredAuction } =
+  auctionSlice.actions;
 
 export default auctionSlice.reducer;

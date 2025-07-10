@@ -13,7 +13,6 @@ export const createAuction = async (
     if (response.status !== 201) {
       throw new Error("Failed to create auction");
     }
-    console.log("Auction created successfully:", response.data);
 
     return response.data;
   } catch (error) {

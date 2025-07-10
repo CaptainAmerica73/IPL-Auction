@@ -17,21 +17,9 @@ export const createAuction = async (req, res) => {
     await newAuction.save();
     const data = newAuction.toObject();
 
-    console.log(data);
-
     res.status(201).json({
       message: "Auction Creation Successful",
-      data: {
-        _id: newAuction._id,
-        auctionName: newAuction.auctionName,
-        teams: newAuction.teams,
-        players: newAuction.players,
-        currentTeams: newAuction.currentTeams,
-        totalTeams: newAuction.totalTeams,
-        wallet: newAuction.wallet,
-        status: newAuction.status,
-        createdBy: newAuction.createdBy,
-      },
+      data,
     });
   } catch (error) {
     res.status(500).json({ message: "Error while Creating Auction" });

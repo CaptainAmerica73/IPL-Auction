@@ -1,15 +1,18 @@
 export const auctionSocket = (io, socket) => {
-  socket.on("auctionCreated", async (auction) => {
-    socket.broadcast.emit("someOtherCreatedAuction", auction);
-  });
+    socket.on("auctionCreated", async (auction) => {
+        socket.broadcast.emit("someOtherCreatedAuction", auction);
+    });
 
-  socket.on("joinAuction", (auctionId) => {
-    socket.join(auctionId);
-    socket.emit("joinedAuction", auctionId);
-    socket.to(auctionId).emit("someOtherJoinedAuction", auctionId);
-  });
+    socket.on("joinedAuction", (data) => {
+        socket.join(data.auctionId);
+        socket.broadcast.emit("someOtherJoinedAuction", data);
+    });
 
-  socket.on("leaveAuction", (auctionId) => {
-    socket.leave(auctionId);
-  });
+    socket.on("enteredAuction", (data) => {
+        socket.to(data.auctionId).emit("someOtherEnteredAuction", data);
+    });
+
+    socket.on("leaveAuction", (auctionId) => {
+        socket.leave(auctionId);
+    });
 };

@@ -4,7 +4,7 @@ import { generateToken } from "./jwtToken.js";
 export const signupUser = async (req, res) => {
   const { userName, email, password, role } = req.body;
   try {
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ userName });
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
     }
@@ -13,7 +13,7 @@ export const signupUser = async (req, res) => {
     await newUser.save();
 
     const data = {
-      id: newUser._id,
+      _id: newUser._id,
       userName: newUser.userName,
       role: newUser.role,
     };

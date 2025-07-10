@@ -1,7 +1,8 @@
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
+import { User } from "./users.js";
 
-const auctionSchema = mongoose.Schema(
+const auctionSchema = new mongoose.Schema(
   {
     auctionName: {
       type: String,
@@ -43,6 +44,10 @@ const auctionSchema = mongoose.Schema(
         imageURL: {
           type: String,
           default: null,
+        },
+        active: {
+          type: Boolean,
+          default: false,
         },
         players: [
           {
@@ -114,6 +119,14 @@ auctionSchema.pre("save", function (next) {
     this.password = undefined;
   }
   next();
+});
+
+auctionSchema.post("findOneAndDelete", async function (doc) {
+  const id = doc._id;
+  const owners = doc.teams.map((team) => team.owner);
+  await mongoose
+    .model("User")
+    .updateMany({ _id: { $in: owners } }, { $pull: { auctions: id } });
 });
 
 auctionSchema.methods.comparePassword = function (password) {
