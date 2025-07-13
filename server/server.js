@@ -17,7 +17,7 @@ import {socketMiddleware} from "./middleware/socketMiddleware.js";
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-    cors: {origin: ["http://localhost:5173", "http://localhost:5174"], credentials: true},
+	cors: {origin: ["http://localhost:5173", "http://localhost:5174"], credentials: true},
 });
 dotenv.config();
 
@@ -32,22 +32,22 @@ app.use("/auth", authRouter);
 io.use(socketMiddleware);
 
 mongoose
-    .connect(process.env.MONGO_URI)
-    .then(() => console.log("MongoDB Connected"))
-    .catch((e) => console.log("MongoDB Connection Error"));
+	.connect(process.env.MONGO_URI)
+	.then(() => console.log("MongoDB Connected"))
+	.catch(() => console.log("MongoDB Connection Error"));
 
 server.listen(process.env.PORT, () =>
-    console.log(`Server is listening to port ${process.env.PORT}`)
+	console.log(`Server is listening to port ${process.env.PORT}`)
 );
 
 io.on("connection", (socket) => {
-    console.log(`${socket.user.userName} connected`);
+	console.log(`${socket.user.userName} connected`);
 
-    bidSocket(io, socket);
-    playerSocket(io, socket);
-    auctionSocket(io, socket);
+	bidSocket(io, socket);
+	playerSocket(io, socket);
+	auctionSocket(io, socket);
 
-    socket.on("disconnect", () => {
-        console.log(`${socket.id} disconnected`);
-    });
+	socket.on("disconnect", () => {
+		console.log(`${socket.id} disconnected`);
+	});
 });
