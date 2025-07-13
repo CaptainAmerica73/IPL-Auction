@@ -12,7 +12,8 @@ export const auctionSocket = (io, socket) => {
         socket.to(data.auctionId).emit("someOtherEnteredAuction", data);
     });
 
-    socket.on("leaveAuction", (auctionId) => {
-        socket.leave(auctionId);
+    socket.on("leftAuction", (data) => {
+        socket.leave(data.auctionId);
+        socket.broadcast.emit("someOtherLeftAuction", data);
     });
 };

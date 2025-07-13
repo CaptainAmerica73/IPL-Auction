@@ -1,6 +1,5 @@
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
-import { User } from "./users.js";
 
 const auctionSchema = new mongoose.Schema(
   {
@@ -126,11 +125,11 @@ auctionSchema.post("findOneAndDelete", async function (doc) {
   const owners = doc.teams.map((team) => team.owner);
   await mongoose
     .model("User")
-    .updateMany({ _id: { $in: owners } }, { $pull: { auctions: id } });
+    .updateMany({ _id: { $in: owners } }, { $set: { auction: null } });
 });
 
 auctionSchema.methods.comparePassword = function (password) {
   return bcrypt.compareSync(password, this.password);
 };
 
-export const Auction = mongoose.model("Auctions", auctionSchema);
+export const Auction = mongoose.model("Auction", auctionSchema);

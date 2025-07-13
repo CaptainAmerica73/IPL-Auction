@@ -1,25 +1,20 @@
 import {useEffect, useState} from "react";
 import {useSelector, useDispatch} from "react-redux";
-import {enteredAuction, fetchAuctions} from "../slices/auctionslice";
+import {enteredAuction, fetchAuctions, leftAuction} from "../slices/auctionSlice.tsx";
 import {RootState, DispatchType} from "../store/store";
 import JoinAuctionModal from "./joinAuctionModal";
 import {toast} from "react-toastify";
 import {useNavigate} from "react-router-dom";
 import {enterAuction} from "../services/enterAuction";
 import getSocket from "../services/getSocket";
+import {leaveAuction} from "../services/leaveAuction.ts";
+import {removeAuctionFromUser} from "../slices/authSlice.tsx";
 
 export default function AuctionList() {
     const auctions = useSelector((state: RootState) => state.auctions.auctions);
     const dispatch = useDispatch<DispatchType>();
-    const currentUser = useSelector((state: RootState) => state.auth._id);
+    const currentUser = useSelector((state: RootState) => state.auth);
     const navigate = useNavigate();
-
-    const isJoined = (auctionId: string) => {
-        const auction = auctions.find((auction) => auction._id == auctionId);
-        if (auction) {
-            return auction.teams.some((team) => team.owner == currentUser);
-        }
-    };
 
     const [toggleJoinAuctionModal, setToggleJoinAuctionModal] = useState({
         isOpened: false,
@@ -28,7 +23,7 @@ export default function AuctionList() {
     });
 
     useEffect(() => {
-        if (!currentUser) {
+        if (!currentUser || !currentUser._id) {
             toast.error("Unauthorized access");
             navigate("/");
         }
@@ -62,31 +57,51 @@ export default function AuctionList() {
                         {auction.totalTeams} teams | {auction.wallet}
                     </p>
                     <p className="text-[clamp(0.8rem,1.5vw,1.6rem)]">{auction.privacy}</p>
-                    {isJoined(auction._id) ? (
-                        <button
-                            className="text-[clamp(0.8rem,1.5vw,1.6rem)] bg-cyan-700 hover:text-black hover:bg-cyan-600 transition-all rounded-xl py-[clamp(.4rem,.5vw,.6rem)] px-[clamp(.8rem,1.5vw,2rem)] cursor-pointer"
-                            onClick={() => {
-                                enterAuction(auction._id).then((res) => {
-                                    console.log(res);
-
-                                    if (res.error) {
-                                        toast.error(res.error);
-                                        return;
-                                    }
-                                    dispatch(
-                                        enteredAuction({
-                                            auctionId: res.data.auctionId,
-                                            teamName: res.data.teamName,
-                                            active: res.data.active,
-                                        })
-                                    );
-                                    getSocket().emit("enteredAuction", res.data);
-                                    navigate(`/auction/${res.data.auctionId}`);
-                                });
-                            }}
-                        >
-                            Enter &#129170;
-                        </button>
+                    {auction._id === currentUser.auction ? (
+                        <div className="flex gap-[.5rem]">
+                            <button
+                                className="text-[clamp(0.8rem,1.5vw,1.6rem)] bg-red-700 hover:text-black hover:bg-red-600 transition-all rounded-xl py-[clamp(.4rem,.5vw,.6rem)] px-[clamp(.8rem,1.5vw,2rem)] cursor-pointer"
+                                onClick={() => {
+                                    leaveAuction(auction._id).then((res) => {
+                                        console.log(res);
+                                        if (res.error) {
+                                            toast.error(res.error);
+                                            return;
+                                        }
+                                        dispatch(
+                                            leftAuction(res.data)
+                                        );
+                                        dispatch(removeAuctionFromUser());
+                                        getSocket().emit("leftAuction", res.data);
+                                        toast.success(res.message || "Successfully left the auction!");
+                                    });
+                                }}
+                            >
+                                Leave &#129170;
+                            </button>
+                            <button
+                                className="text-[clamp(0.8rem,1.5vw,1.6rem)] bg-cyan-700 hover:text-black hover:bg-cyan-600 transition-all rounded-xl py-[clamp(.4rem,.5vw,.6rem)] px-[clamp(.8rem,1.5vw,2rem)] cursor-pointer"
+                                onClick={() => {
+                                    enterAuction(auction._id).then((res) => {
+                                        if (res.error) {
+                                            toast.error(res.error);
+                                            return;
+                                        }
+                                        dispatch(
+                                            enteredAuction({
+                                                auctionId: res.data.auctionId,
+                                                teamName: res.data.teamName,
+                                                active: res.data.active,
+                                            })
+                                        );
+                                        getSocket().emit("enteredAuction", res.data);
+                                        navigate(`/auction/${res.data.auctionId}`);
+                                    });
+                                }}
+                            >
+                                Enter &#129170;
+                            </button>
+                        </div>
                     ) : (
                         <button
                             onClick={() => {

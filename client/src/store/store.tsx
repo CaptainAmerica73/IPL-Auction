@@ -1,14 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
-import bidReducers from "../slices/bidslice";
-import playerReducers from "../slices/playerslice";
-import auctionReducers from "../slices/auctionslice";
+import bidReducers from "../slices/bidSlice.tsx";
+import playerReducers from "../slices/playerSlice.tsx";
+import auctionReducers from "../slices/auctionSlice.tsx";
 import authReducers from "../slices/authSlice";
+import currentAuctionReducers from "../slices/currentAuctionSlice";
 
 export const store = configureStore({
   reducer: {
     bids: bidReducers,
     players: playerReducers,
     auctions: auctionReducers,
+    currentAuction: currentAuctionReducers,
     auth: authReducers,
   },
 });

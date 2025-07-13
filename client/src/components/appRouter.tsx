@@ -1,5 +1,4 @@
 import {Outlet, Route, Routes} from "react-router-dom";
-
 import {BrowserRouter} from "react-router-dom";
 import Login from "../pages/loginPage";
 import {ToastContainer} from "react-toastify";
@@ -10,10 +9,11 @@ import SignUp from "../pages/signupPage";
 import useAuth from "../hooks/useAuth.ts";
 import useSocket from "../hooks/useSocket.ts";
 import useAuctionListeners from "../hooks/useAuctionListeners.ts";
-import AuctionPlayPage from "../pages/auctionPlayPage.tsx";
 import AuctionPlayNavbar from "./auctionPlayNavbar.tsx";
+import AuctionPlayPage from "../pages/auctionPlayPage.tsx";
+import AuctionPlayPlayers from "../pages/auctionPlayPlayers.tsx";
 
-const RenderWithNavbar = () => {
+const NormalLayout = () => {
     return (
         <>
             <Navbar/>
@@ -26,7 +26,9 @@ const AuctionPlayLayout = () => {
     return (
         <>
             <AuctionPlayNavbar/>
-            <Outlet/>
+            <div className="w-screen min-h-screen flex justify-center items-center bg-[#19398a]">
+                <Outlet/>
+            </div>
         </>
     );
 };
@@ -38,14 +40,15 @@ export default function AppRouter() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<RenderWithNavbar/>}>
+                <Route path="/" element={<NormalLayout/>}>
                     <Route index element={<Home/>}/>
                     <Route path="auctions" element={<AuctionHome/>}/>
                     <Route path="auth/login" element={<Login/>}/>
                     <Route path="auth/signup" element={<SignUp/>}/>
                 </Route>
-                <Route path="/auction" element={<AuctionPlayLayout/>}>
-                    <Route path=":id" element={<AuctionPlayPage/>}/>
+                <Route path="/auction/:id" element={<AuctionPlayLayout/>}>
+                    <Route index element={<AuctionPlayPage/>}/>
+                    <Route path="players" element={<AuctionPlayPlayers/>}/>
                 </Route>
             </Routes>
             <ToastContainer
